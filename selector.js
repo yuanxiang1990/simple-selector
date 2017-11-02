@@ -1,21 +1,42 @@
 (function () {
     var EXPR = {
-        CHUNK:/([a-zA-Z]+|#\w+|\.\w+)(\s*[>~]?\s*)?((?:.|\r|\n)*)?/g,
+        CHUNK:/([a-zA-Z]+|#\w+|\.\w+)(\s*[>~]?\s*)?((?:.|\r|\n)*)/g,
         ID:/^#(\w+)$/,
         CLASS:/^\.(\w+)$/
-    }
+    }, chunker = EXPR.CHUNK;
     function S(selector) {
         return new S.prototype.init(selector);
     }
     S.prototype = {
         init:function (selector) {
-            var match = EXPR.CHUNK.exec(selector);
-            if(!match[2]||!match[3]) {
+            var soFar = selector,
+            m,parts = [];
+
+            do{
+                chunker.exec( "" );
+                m = chunker.exec( soFar );
+                if ( m ) {
+                    soFar = m[3];
+                    parts.push( m[1] );
+                    m[2]&&parts.push( m[2] );
+                }
+            }
+            while(m);
+            /**
+             * 拆分为空直接返回
+             */
+            if(parts.length==0){
+                return this;
+            }
+            /**
+             *
+             */
+            if(parts.length==1) {
                 this['__instance__'] = this.singleFind(selector);
                 return this;
             }
             else {
-                this['__instance__'] = this.find(match);
+                this['__instance__'] = this.find(parts);
                 return this;
             }
         },
@@ -39,18 +60,21 @@
             }
         },
 
-        find:function (match) {
+        find:function (parts) {
             var ret = [];
-            ret.push(this.singleFind(match[3]));
-            return this.filter(match,ret);
+            ret.push(this.singleFind(parts.pop()));
+            return this.filter(parts,ret);
         },
 
         /**
          * 从右向左过滤
          * */
-        filter:function (match,ret) {
-            var rel = match[2];
-            var top = this.singleFind(match[1]);
+        filter:function (parts,ret) {
+            var rel = parts.pop();
+            var top = this.singleFind(parts.pop());
+            if(parts.length==0){
+                return ret;
+            }
             if(/\s*/.test(rel)){
                 ret.filter(function (node) {
                     var p = node.parentNode;
@@ -76,7 +100,7 @@
                     return false;
                 });
             }
-            return ret;
+            return this.filter(parts,ret);
         }
     }
     S.prototype.init.prototype = S.prototype;
