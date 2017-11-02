@@ -1,6 +1,6 @@
 (function () {
     var EXPR = {
-        CHUNK:/([a-zA-Z]+|#\w+|\.\w+)(\s*[>~]?\s*)?([a-zA-Z]+|#\w+|\.\w+)?/g,
+        CHUNK:/([a-zA-Z]+|#\w+|\.\w+)(\s*[>~]?\s*)?((?:.|\r|\n)*)?/g,
         ID:/^#(\w+)$/,
         CLASS:/^\.(\w+)$/
     }
