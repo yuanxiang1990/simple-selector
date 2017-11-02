@@ -20,7 +20,7 @@
                 if ( m ) {
                     soFar = m[3];
                     parts.push( m[1] );
-                    m[2]&&parts.push( m[2] );
+                    soFar&&m[2]&&parts.push( m[2] );
                 }
             }
             while(m);
