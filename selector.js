@@ -11,7 +11,7 @@
         init:function (selector) {
             var match = EXPR.CHUNK.exec(selector);
             if(!match[2]||!match[3]) {
-                this['__instance__'] = this.findOne(selector);
+                this['__instance__'] = this.singleFind(selector);
                 return this;
             }
             else {
@@ -19,7 +19,7 @@
                 return this;
             }
         },
-        findOne:function (selector) {
+        singleFind:function (selector) {
             var m;
             /**
              * ID选择器
@@ -33,6 +33,7 @@
             else if (m = EXPR.CLASS.exec(selector)) {
                 return document.getElementsByClassName(m[1]);
             }
+
             else{
                 return document.getElementsByTagName(selector);
             }
@@ -40,16 +41,8 @@
 
         find:function (match) {
             var ret = [];
-            var m;
-            if(m = EXPR.ID.exec(match[3])){
-                ret.push(document.getElementById(m[1]));
-                return this.filter(match,ret);
-            }
-            else if(m = EXPR.CLASS.exec(match[3])){
-                ret.push(document.getElementsByClassName(m[1]));
-                return this.filter(match,ret);
-            }
-            return this;
+            ret.push(this.singleFind(match[3]));
+            return this.filter(match,ret);
         },
 
         /**
@@ -57,18 +50,31 @@
          * */
         filter:function (match,ret) {
             var rel = match[2];
-            var top = this.findOne(match[1]);
+            var top = this.singleFind(match[1]);
             if(/\s*/.test(rel)){
                 ret.filter(function (node) {
                     var p = node.parentNode;
                     while (p!=null){
-                        if(p == top){
-                            return true;
+                        for(var i = 0;i<top.length;i++){
+                            if(p == top[i]){
+                                return true;
+                            }
                         }
                         p = p.parentNode;
                     }
                     return false;
                 })
+            }
+            else if(/\s*>\s*/.test(rel)){//父子关系
+                ret.filter(function (node) {
+                    var p = node.parentNode;
+                    for(var i = 0;i<top.length;i++){
+                        if(p == top[i]){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
             }
             return ret;
         }
