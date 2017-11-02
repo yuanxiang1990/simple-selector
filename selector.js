@@ -9,22 +9,7 @@
     }
     S.prototype = {
         init:function (selector) {
-            var soFar = selector,
-            m,parts = [];
-            /**
-             * chunker拆分
-             */
-            do{
-                chunker.exec( "" );
-                m = chunker.exec( soFar );
-                if ( m ) {
-                    soFar = m[3];
-                    parts.push( m[1] );
-                    soFar&&m[2]&&parts.push( m[2] );
-                }
-            }
-            while(m);
-            this['__instance__'] = this.find(parts);
+            this['__instance__'] = this.find(selector);
             return this;
         },
         /**
@@ -55,7 +40,23 @@
          * @param parts
          * @returns {*}
          */
-        find:function (parts) {
+        find:function (selector) {
+            var soFar = selector,
+                m,parts = [];
+            /**
+             * chunker拆分
+             */
+            do{
+                chunker.exec( "" );
+                m = chunker.exec( soFar );
+                if ( m ) {
+                    soFar = m[3];
+                    parts.push( m[1] );
+                    soFar&&m[2]&&parts.push( m[2] );
+                }
+            }
+            while(m);
+
             var ret = [];
             if(parts.length==0){
                 return null;
