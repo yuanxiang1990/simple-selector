@@ -12,7 +12,7 @@
 
     S.prototype = {
         init: function (selector) {
-            this['__instance__'] = this.find(selector);
+            this['__instance__'] = this.toArray(this.find(selector));
             return this;
         },
         /**
@@ -63,7 +63,7 @@
          */
         filterAttr: function (ret, name, val) {
             var r = [];
-            for (var i = 0; i < ret.length; i++){
+            for (var i = 0; i < ret.length; i++) {
                 if (ret[i].getAttribute(name) == val) {
                     r.push(ret[i]);
                 }
@@ -142,8 +142,24 @@
                 });
             }
             return this.filter(parts, ret);
+        },
+        toArray: function (obj) {
+            var a = [];
+            if (this.type(obj) == "HTMLCollection") {
+                for (var i = 0; i < obj.length; i++) {
+                    a.push(obj[i]);
+                }
+            }
+            else {
+                a[0] = obj;
+            }
+            return a;
+        },
+        type: function (obj) {
+            return Object.prototype.toString.call(obj).match(/\[object\s*(\w+)\]/)[1];
         }
     }
+
     S.prototype.init.prototype = S.prototype;
     window.S = S;
 })(window, undefined)
