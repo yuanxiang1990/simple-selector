@@ -1,7 +1,7 @@
 (function () {
     var EXPR = {
         CHUNK: /(?:([^ >+~,\+)]+)+)(\s*[>~]?\s*)?((?:.|\r|\n)*)/g,
-        ATTR: /([\.\#]*\w*)((\[((\w+)([\^*!]*\=)(\w+))\]))(.*)/,
+        ATTR: /([\.\#]*\w*)((\[((\w+)([\^*!]*\=)(?:'*(\w+)'*))\]))(.*)/,
         ID: /^#(\w+)$/,
         CLASS: /^\.(\w+)$/,
     }, chunker = EXPR.CHUNK;
@@ -145,12 +145,15 @@
         },
         toArray: function (obj) {
             var a = [];
+            if (this.type(obj) == "Array") {
+                return obj;
+            }
             if (this.type(obj) == "HTMLCollection") {
                 for (var i = 0; i < obj.length; i++) {
                     a.push(obj[i]);
                 }
             }
-            else {
+            else if (!this.type(obj) == "Null") {
                 a[0] = obj;
             }
             return a;
