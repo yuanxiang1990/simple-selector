@@ -6,13 +6,20 @@
         CLASS: /^\.(\w+)$/,
     }, chunker = EXPR.CHUNK;
 
-    function S(selector) {
-        return new S.prototype.init(selector);
+    function S(selector,context) {
+        return new S.prototype.init(selector,context);
     }
 
     S.prototype = {
-        init: function (selector) {
-            this['__instance__'] = this.toArray(this.find(selector));
+        /**
+         *
+         * @param selector
+         * @param context 暂时只支持S类型
+         * @returns {S}
+         */
+        init: function (selector,context) {
+            this.context = context||document;
+            this['__instance__'] = this._find(selector);
             return this;
         },
         /**
@@ -20,28 +27,34 @@
          * @param selector
          */
         singleFind: function (selector) {
-            var m;
+            var m,context = this['__instance__']||this.context.__instance__||[document],ret = [];
             /**
              * ID选择器
              */
             if (m = EXPR.ID.exec(selector)) {
-                return document.getElementById(m[1]);
+                for(var i=0;i<context.length;i++){
+                    ret = ret.concat(this.toArray(context[i].getElementById(m[1])));
+                }
             }
             /**
              * CLASS选择器
              */
             else if (m = EXPR.CLASS.exec(selector)) {
-                return document.getElementsByClassName(m[1]);
+                for(var i=0;i<context.length;i++){
+                    ret = ret.concat(this.toArray(context[i].getElementsByClassName(m[1])));
+                }
             }
             /**
              * 属性选择器
              */
             else if (m = EXPR.ATTR.exec(selector)) {
                 if (m[1]) {
-                    var ret = this.singleFind(m[1]);
+                    ret = this.toArray(this.singleFind(m[1]));
                 }
                 else {
-                    var ret = document.body.getElementsByTagName("*")
+                    for(var i=0;i<context.length;i++) {
+                        ret = ret.concat(this.toArray(context[i].getElementsByTagName("*")));
+                    }
                 }
                 do {
                     var attrStr = m[8];
@@ -49,11 +62,13 @@
                     EXPR.ATTR.exec(attrStr);
                 }
                 while (attrStr);
-                return ret;
             }
             else {//default tag
-                return document.getElementsByTagName(selector);
+                for(var i=0;i<context.length;i++){
+                    ret = ret.concat(this.toArray(context[i].getElementsByTagName(selector)));
+                }
             }
+            return ret;
         },
         /**
          * 属性过滤器
@@ -75,7 +90,7 @@
          * @param parts
          * @returns {*}
          */
-        find: function (selector) {
+        _find: function (selector) {
             var soFar = selector,
                 m, parts = [];
             /**
@@ -103,6 +118,9 @@
                 ret.push(this.singleFind(parts.pop()));
                 return this.filter(parts, ret);
             }
+        },
+        find:function (selector) {
+            return new this.init(selector,this);
         },
         /**
          * 从右到左过滤
