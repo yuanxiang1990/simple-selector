@@ -170,6 +170,24 @@
                     return false;
                 });
             }
+            else if(/^\s*~\s*$/.test(rel)){//匹配 prev 元素之后的所有 siblings 元素
+                ret = ret.filter(function (node) {
+                    var p = node.previousSibling;
+                    while (p){
+                        if(p.nodeType!=1){
+                            p = p.previousSibling;
+                            continue;
+                        }
+                        for (var i = 0; i < top.length; i++) {
+                            if (p == top[i]) {
+                                return true;
+                            }
+                        }
+                        p = p.previousSibling;
+                    }
+                    return false;
+                });
+            }
             return this.filter(parts, ret);
         },
         toArray: function (obj) {
