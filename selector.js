@@ -1,6 +1,6 @@
 (function () {
     var EXPR = {
-        CHUNK: /(?:([^ >+~,\+)]+)+)(\s*[>~]?\s*)?((?:.|\r|\n)*)/g,
+        CHUNK: /(?:([^ >+~,\+)]+)+)(\s*[>+~]?\s*)?((?:.|\r|\n)*)/g,
         ATTR: /([\.\#]*\w*)((\[((\w+)([\^*!]*\=)(?:'*(\w+)'*))\]))(.*)/,
         ID: /^#(\w+)$/,
         CLASS: /^\.(\w+)$/,
@@ -115,7 +115,7 @@
                 return this.singleFind(parts.pop());
             }
             else {
-                ret.push(this.singleFind(parts.pop()));
+                ret = ret.concat(this.singleFind(parts.pop()));
                 return this.filter(parts, ret);
             }
         },
@@ -129,13 +129,13 @@
          * @returns {*}
          */
         filter: function (parts, ret) {
-            var rel = parts.pop();
-            var top = this.singleFind(parts.pop());
             if (parts.length == 0) {
                 return ret;
             }
-            if (/\s*/.test(rel)) {
-                ret.filter(function (node) {
+            var rel = parts.pop();
+            var top = this.singleFind(parts.pop());
+            if (/^\s*$/.test(rel)) {
+                ret = ret.filter(function (node) {
                     var p = node.parentNode;
                     while (p != null) {
                         for (var i = 0; i < top.length; i++) {
@@ -148,9 +148,20 @@
                     return false;
                 })
             }
-            else if (/\s*>\s*/.test(rel)) {//父子关系
-                ret.filter(function (node) {
+            else if (/^\s*>\s*$/.test(rel)) {//父子关系
+                ret = ret.filter(function (node) {
                     var p = node.parentNode;
+                    for (var i = 0; i < top.length; i++) {
+                        if (p == top[i]) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+            else if(/^\s*\+\s*$/.test(rel)){//匹配所有紧接在 prev 元素后的 next 元素
+                ret = ret.filter(function (node) {
+                    var p = node.previousSibling;
                     for (var i = 0; i < top.length; i++) {
                         if (p == top[i]) {
                             return true;
