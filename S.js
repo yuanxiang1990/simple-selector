@@ -129,11 +129,11 @@
          * @returns {*}
          */
         filter: function (parts, ret) {
-            if (parts.length == 0) {
-                return ret;
-            }
             var rel = parts.pop();
             var top = this.singleFind(parts.pop());
+            while(parts.length>0){
+                top = this.filter(parts,top);
+            }
             if (/^\s*$/.test(rel)) {
                 ret = ret.filter(function (node) {
                     var p = node.parentNode;
@@ -188,7 +188,7 @@
                     return false;
                 });
             }
-            return this.filter(parts, ret);
+            return ret;
         },
         toArray: function (obj) {
             var a = [];
