@@ -131,6 +131,9 @@
         filter: function (parts, ret) {
             var rel = parts.pop();
             var top = this.singleFind(parts.pop());
+            /**
+             * 递归过滤父级别节点
+             */
             while(parts.length>0){
                 top = this.filter(parts,top);
             }
